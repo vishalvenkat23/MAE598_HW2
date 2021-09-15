@@ -16,35 +16,45 @@ def f(x):
     return 5 * x[0] ** 2 + 12 * x[0] * x[1] - 8 * x[1] + 10 * x[1] ** 2 - 14 * x[1] + 4
 
 
-def grad(x):
-    # return np.array([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14])
-    return [10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14]
+# grad_d(x):
+# return np.array([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14])
+# return [10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14]
+def grad_d(grad, start, learn_r, tol):
+    pass
 
+
+grad_d(
+    grad=lambda x: np.array([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14]),
+    start=np.array([0, 0]), learn_r=0.2, tol=1e-3
+)
 
 eps = 1e-3
-x0 = 0.
+x0 = (0, 0)
 k = 0
 soln = [x0]
 x = soln[k]
 
 # error = np.linalg.norm([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14])
 # error = np.linalg.norm(grad(x))
-error = scipy.linalg.norm(grad(x))
+error = scipy.linalg.norm(grad_d(x))
 a = 0.01
-print(error)
+
+
+# print(error)
 
 
 # line search code starts here
 
 def line_search(x):
     a = 1
-    d = -1 * grad(x)
 
-    def phi(x):
-        return f(x) + a * 0.8 * np.matmul(np.transpose(grad(x)), d)
+    # d = -1 * grad(x)
+    def phi(a, x):
+        return f(x) - a * 0.8 * grad_d(x) * grad_d(x)
+        # return f(x) - a * 0.8 * np.matmul(np.transpose(grad(x)), d)
 
-    print(phi(x))
-    while phi(x) < f(x - a * grad(x)):
+    # print(phi(x))
+    while phi(a, x) < f(x - a * grad(x)):
         a = 0.5 * a
     return a
 
@@ -53,9 +63,11 @@ def line_search(x):
 
 
 while error >= eps:
+    a = line_search(x)
     x = x - a * grad(x)
+    # x = x - np.matmul(grad(x), a)
     soln.append(x)
-    error = np.linalg.norm(grad(x))
+    error = scipy.linalg.norm(grad(x))
     # error = np.linalg.norm(x_0 - x_k)
     # conv = np.linalg.norm(grad(x_0))
     # soln.append(float(error))
@@ -63,4 +75,5 @@ while error >= eps:
     # soln.append(x)
     # error = np.linalg.norm(g(x))
 # x = np.array([-2 * x_0[0] - 3 * x_0[1] + 1, x_0[0], x_0[0]])
-print(x)
+# print(x)
+print(soln)
