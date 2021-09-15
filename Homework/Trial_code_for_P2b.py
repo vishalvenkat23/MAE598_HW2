@@ -1,39 +1,66 @@
 import numpy as np
+import scipy
 from scipy.optimize import optimize
 
-eps = 1e-3  # termination cov_cri
-x_0 = [0, 0]  # initial
-k = 1  # count
-soln = []  # err
-itr = []  # itt
-error = 1  # conv
-a = 0.0001  # alpha
+
+# eps = 1e-3  # termination cov_cri
+# x_0 = [0, 0]  # initial
+# k = 1  # count
+# soln = []  # err
+# itr = []  # itt
+# error = 1  # conv
+# a = 0.0001  # alpha
 
 
 def f(x):
-    return (x[0]) ** 2 + 12 * x[0] * x[1] - 8 * x[0] + 10 * x[1] ** 2 + 4 - 14 * x[1]
+    return 5 * x[0] ** 2 + 12 * x[0] * x[1] - 8 * x[1] + 10 * x[1] ** 2 - 14 * x[1] + 4
 
 
 def grad(x):
-    return np.arrey([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14])
+    # return np.array([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14])
+    return [10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14]
 
 
-# def line_search(x):
-#     a = 1.
-#     d = - g(x)
-#     phi = lambda a, x: f(x) - a * 0.8 * (np.transpose(grad(x)) * d
-#     while phi(a, x) > f(x - a * np.array(grad(x))):
-#         a = 0.5 * a
-#     return a
+eps = 1e-3
+x0 = 0.
+k = 0
+soln = [x0]
+x = soln[k]
+
+# error = np.linalg.norm([10 * x[0] + 12 * x[1] - 8, 12 * x[0] + 20 * x[1] - 14])
+# error = np.linalg.norm(grad(x))
+error = scipy.linalg.norm(grad(x))
+a = 0.01
+print(error)
+
+
+# line search code starts here
+
+def line_search(x):
+    a = 1
+    d = -1 * grad(x)
+
+    def phi(x):
+        return f(x) + a * 0.8 * np.matmul(np.transpose(grad(x)), d)
+
+    print(phi(x))
+    while phi(x) < f(x - a * grad(x)):
+        a = 0.5 * a
+    return a
+
+    # while phi(a, x) > f(x - a * np.array(grad(x))):
+    #     a = 0.5 * a
+
 
 while error >= eps:
-    x_k = x_0
-    x_0 = x_k - a * grad(x_k)
-    error = abs(max(x_0-x_k))
-    conv=np.linalg.norm(grad(x_0))
-    soln.append(float(error))
+    x = x - a * grad(x)
+    soln.append(x)
+    error = np.linalg.norm(grad(x))
+    # error = np.linalg.norm(x_0 - x_k)
+    # conv = np.linalg.norm(grad(x_0))
+    # soln.append(float(error))
 
     # soln.append(x)
     # error = np.linalg.norm(g(x))
-x = np.array([-2*x_0[0]-3*x_0[1]+1,x_0[0],x_0[0]])
+# x = np.array([-2 * x_0[0] - 3 * x_0[1] + 1, x_0[0], x_0[0]])
 print(x)
